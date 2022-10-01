@@ -2,11 +2,10 @@
 #include "image.h"
 #include <Adafruit_BMP085.h>
 
-Adafruit_BMP085 bmp;;
+Adafruit_BMP085 bmp;
 TFT_eSPI tft= TFT_eSPI();
 TFT_eSprite sprite = TFT_eSprite(&tft);
-TFT_eSprite spr = TFT_eSprite(&tft); //sprite for seconds
-TFT_eSprite spr2 = TFT_eSprite(&tft); //sprite for calendar
+TFT_eSprite spr2 = TFT_eSprite(&tft); //sprite for temperature
 
 
 int iW=480;
@@ -21,31 +20,6 @@ int yt=8;
 
 int start=1;
 unsigned short imageS[54400]={0};
-
-
-void setup() {
-tft.init();
-tft.setRotation(1);
-tft.setSwapBytes(true);
-sprite.createSprite(320,170);
-sprite.setSwapBytes(true);
-
-    spr.createSprite(80,40);
-    spr.fillSprite(TFT_GREEN);
-    spr2.createSprite(86,160);
-    spr2.fillSprite(TFT_GREEN);
-    spr2.setTextDatum(4);
-    spr.setTextColor(TFT_WHITE,TFT_GREEN);
-    spr2.setTextColor(TFT_WHITE,TFT_GREEN);
-    spr.setFreeFont(&Orbitron_Light_32);
-    spr2.setFreeFont(&Orbitron_Light_24);
-
-Wire.begin(43,44);
-bmp.begin();
-
- 
-
-}
 int pos=0;
 int x=0;
 int y=30;
@@ -54,6 +28,24 @@ int changeY=1;
 
 String temperature;
 long pressure;
+
+void setup() {
+tft.init();
+tft.setRotation(1);
+tft.setSwapBytes(true);
+sprite.createSprite(320,170);
+sprite.setSwapBytes(true);
+
+    spr2.createSprite(86,160);
+    spr2.fillSprite(TFT_GREEN);
+    spr2.setTextDatum(4);
+    spr2.setTextColor(TFT_WHITE,TFT_GREEN);
+    spr2.setFreeFont(&Orbitron_Light_24);
+
+Wire.begin(43,44);
+bmp.begin();
+}
+
 void loop() {
 
   
@@ -66,20 +58,20 @@ void loop() {
   {
   if(start%m==0)
   {
-  start=start+(iW-w);
-  m=m+iW;
+  start += iW-w;
+  m += iW;
   }
   imageS[i]=picture[start];
   start++;
   
   }
-  x=x+changeX;
+  x += changeX;
   if(x==iW-w-1 || x<0)
-  changeX=changeX*-1;
+  changeX *= -1;
 
-   y=y+changeY;
+   y += changeY;
   if(y==iH-h-1 || y<1)
-  changeY=changeY*-1;
+  changeY *= -1;
   
   sprite.pushImage(0,0,320,170,imageS);
 
@@ -105,7 +97,7 @@ void loop() {
   spr2.drawString("PRESSURE  ",40,80,2);
   
   spr2.drawString(String(pressure/1000)+" hPascal",44,104,2);
-    spr2.pushToSprite(&sprite,xt,yt,TFT_BLACK);
+  spr2.pushToSprite(&sprite,xt,yt,TFT_BLACK);
   sprite.pushSprite(0,0);
 
 }
